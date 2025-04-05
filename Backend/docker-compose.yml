@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - JWT_SECRET=your-secret-key
+      - INVENTORY_SERVICE_URL=http://inventory-service:8081
+      - ORDER_SERVICE_URL=http://order-service:8082
+    depends_on:
+      - inventory-service
+      - order-service
+
+  inventory-service:
+    build: ./inventory-service
+    ports:
+      - "8081:8081"
+    environment:
+      - HTTP_PORT=8081
+      - MONGO_URI=mongodb://mongodb-inventory:27017
+      - MONGO_DB_NAME=inventory
+    depends_on:
+      - mongodb-inventory
+
+  mongodb-inventory:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - inventory-data:/data/db
+
+  order-service:
+    image: order-service:latest
+    ports:
+      - "8082:8082"
+    # Will be implemented in next steps
+    
